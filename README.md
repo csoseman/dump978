@@ -41,6 +41,12 @@ $ sudo dpkg -i ../dump978-fa_*.deb ../skyaware978_*.deb
  1. Ensure SoapySDR and Boost are installed
  2. 'make'
 
+## Building from source on a Mac (Intel)
+1. `brew install soapysdr boost`
+2. `git clone git@github.com:csoseman/dump978.git`
+3. `cd dump978`
+4. `make CXXFLAGS="-std=c++17"`
+
 ## Installing the SoapySDR driver module
 
 You will want at least one SoapySDR driver installed. For rtlsdr, try
