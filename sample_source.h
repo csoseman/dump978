@@ -12,7 +12,7 @@
 #include <functional>
 #include <memory>
 
-#include <boost/asio/io_service.hpp>
+#include <boost/asio/io_context.hpp>
 #include <boost/asio/posix/stream_descriptor.hpp>
 #include <boost/asio/steady_timer.hpp>
 #include <boost/filesystem.hpp>
@@ -60,7 +60,7 @@ namespace flightaware::uat {
 
     class FileSampleSource : public SampleSource {
       public:
-        static SampleSource::Pointer Create(boost::asio::io_service &service, const boost::filesystem::path &path, const boost::program_options::variables_map &options = boost::program_options::variables_map(), std::size_t samples_per_second = 2083333, std::size_t samples_per_block = 524288) { return Pointer(new FileSampleSource(service, path, options, samples_per_second, samples_per_block)); }
+        static SampleSource::Pointer Create(boost::asio::io_context &service, const boost::filesystem::path &path, const boost::program_options::variables_map &options = boost::program_options::variables_map(), std::size_t samples_per_second = 2083333, std::size_t samples_per_block = 524288) { return Pointer(new FileSampleSource(service, path, options, samples_per_second, samples_per_block)); }
 
         void Init() override {}
         void Start() override;
@@ -68,7 +68,7 @@ namespace flightaware::uat {
         SampleFormat Format() override { return format_; }
 
       private:
-        FileSampleSource(boost::asio::io_service &service, const boost::filesystem::path &path, const boost::program_options::variables_map &options, std::size_t samples_per_second, std::size_t samples_per_block) : service_(service), path_(path), timer_(service) {
+        FileSampleSource(boost::asio::io_context &service, const boost::filesystem::path &path, const boost::program_options::variables_map &options, std::size_t samples_per_second, std::size_t samples_per_block) : service_(service), path_(path), timer_(service) {
             if (!options.count("format")) {
                 throw std::runtime_error("--format must be specified when using a file input");
             }
@@ -83,7 +83,7 @@ namespace flightaware::uat {
 
         void ReadBlock(const boost::system::error_code &ec);
 
-        boost::asio::io_service &service_;
+        boost::asio::io_context &service_;
         boost::filesystem::path path_;
         SampleFormat format_;
         unsigned alignment_;
@@ -99,7 +99,7 @@ namespace flightaware::uat {
 
     class StdinSampleSource : public SampleSource {
       public:
-        static SampleSource::Pointer Create(boost::asio::io_service &service, const boost::program_options::variables_map &options, std::size_t samples_per_second = 2083333, std::size_t samples_per_block = 524288) { return Pointer(new StdinSampleSource(service, options, samples_per_second, samples_per_block)); }
+        static SampleSource::Pointer Create(boost::asio::io_context &service, const boost::program_options::variables_map &options, std::size_t samples_per_second = 2083333, std::size_t samples_per_block = 524288) { return Pointer(new StdinSampleSource(service, options, samples_per_second, samples_per_block)); }
 
         void Init() override {}
         void Start() override;
@@ -107,7 +107,7 @@ namespace flightaware::uat {
         SampleFormat Format() override { return format_; }
 
       private:
-        StdinSampleSource(boost::asio::io_service &service, const boost::program_options::variables_map &options, std::size_t samples_per_second, std::size_t samples_per_block) : service_(service), samples_per_second_(samples_per_second), stream_(service), used_(0) {
+        StdinSampleSource(boost::asio::io_context &service, const boost::program_options::variables_map &options, std::size_t samples_per_second, std::size_t samples_per_block) : service_(service), samples_per_second_(samples_per_second), stream_(service), used_(0) {
             if (!options.count("format")) {
                 throw std::runtime_error("--format must be specified when using a file input");
             }
@@ -119,7 +119,7 @@ namespace flightaware::uat {
 
         void ScheduleRead();
 
-        boost::asio::io_service &service_;
+        boost::asio::io_context &service_;
         SampleFormat format_;
         unsigned alignment_;
         std::size_t samples_per_second_;

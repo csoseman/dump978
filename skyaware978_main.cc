@@ -42,7 +42,7 @@ void validate(boost::any &v, const std::vector<std::string> &values, connect_opt
 #define EXIT_NO_RESTART (64)
 
 static int realmain(int argc, char **argv) {
-    boost::asio::io_service io_service;
+    boost::asio::io_context io_service;
 
     // clang-format off
     po::options_description desc("Allowed options");

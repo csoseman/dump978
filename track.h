@@ -12,7 +12,7 @@
 #include <numeric>
 #include <array>
 
-#include <boost/asio/io_service.hpp>
+#include <boost/asio/io_context.hpp>
 #include <boost/asio/steady_timer.hpp>
 #include <boost/asio/strand.hpp>
 
@@ -146,7 +146,7 @@ namespace flightaware::uat {
         typedef std::shared_ptr<Tracker> Pointer;
         typedef std::map<AddressKey, AircraftState> MapType;
 
-        static Pointer Create(boost::asio::io_service &service, std::chrono::milliseconds timeout = std::chrono::seconds(300)) { return Pointer(new Tracker(service, timeout)); }
+        static Pointer Create(boost::asio::io_context &service, std::chrono::milliseconds timeout = std::chrono::seconds(300)) { return Pointer(new Tracker(service, timeout)); }
 
         void Start();
         void Stop();
@@ -158,12 +158,12 @@ namespace flightaware::uat {
         void PurgeOld();
 
       private:
-        Tracker(boost::asio::io_service &service, std::chrono::milliseconds timeout) : service_(service), strand_(service), timer_(service), timeout_(timeout) {}
+        Tracker(boost::asio::io_context &service, std::chrono::milliseconds timeout) : service_(service), strand_(service), timer_(service), timeout_(timeout) {}
 
         void HandleMessage(const AdsbMessage &message);
 
-        boost::asio::io_service &service_;
-        boost::asio::io_service::strand strand_;
+        boost::asio::io_context &service_;
+        boost::asio::io_context::strand strand_;
         boost::asio::steady_timer timer_;
         std::chrono::milliseconds timeout_;
         MapType aircraft_;

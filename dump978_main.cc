@@ -76,7 +76,7 @@ namespace flightaware::uat {
 #define EXIT_NO_RESTART (64)
 
 static int realmain(int argc, char **argv) {
-    boost::asio::io_service io_service;
+    boost::asio::io_context io_service;
 
     // clang-format off
     po::options_description desc("Allowed options");

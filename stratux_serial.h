@@ -12,7 +12,7 @@
 #include <functional>
 #include <memory>
 
-#include <boost/asio/io_service.hpp>
+#include <boost/asio/io_context.hpp>
 #include <boost/asio/posix/stream_descriptor.hpp>
 #include <boost/asio/serial_port.hpp>
 #include <boost/asio/steady_timer.hpp>
@@ -32,10 +32,10 @@ namespace flightaware::uat {
         virtual void Start();
         virtual void Stop();
 
-        static Pointer Create(boost::asio::io_service &io_service, const std::string &path) { return Pointer(new StratuxSerial(io_service, path)); }
+        static Pointer Create(boost::asio::io_context &io_service, const std::string &path) { return Pointer(new StratuxSerial(io_service, path)); }
 
       protected:
-        StratuxSerial(boost::asio::io_service &io_service, const std::string &path);
+        StratuxSerial(boost::asio::io_context &io_service, const std::string &path);
 
       private:
         void StartReading();
@@ -48,7 +48,7 @@ namespace flightaware::uat {
         // how long to wait between scheduling reads (to reduce the spinning on short messages)
         const std::chrono::milliseconds read_interval = std::chrono::milliseconds(50);
 
-        boost::asio::io_service &io_service_;
+        boost::asio::io_context &io_service_;
         std::string path_;
         boost::asio::serial_port port_;
         boost::asio::steady_timer read_timer_;
