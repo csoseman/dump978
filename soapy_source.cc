@@ -277,9 +277,9 @@ void SoapySampleSource::Start() {
 
 void SoapySampleSource::Keepalive() {
     if (rx_thread_ && rx_thread_->joinable()) {
-        // Keep the io_service alive while the rx_thread is active
+        // Keep the io_context alive while the rx_thread is active
         auto self(shared_from_this());
-        timer_.expires_from_now(std::chrono::milliseconds(1000));
+        timer_.expires_after(std::chrono::milliseconds(1000));
         timer_.async_wait([self, this](const boost::system::error_code &ec) {
             if (!ec) {
                 Keepalive();

@@ -39,14 +39,14 @@ namespace flightaware::uat {
         boost::optional<RawMessage> ParseMetadataLine(const std::string &line);
         void HandleError(const boost::system::error_code &ec);
 
-        boost::asio::io_context &service_;
         std::string host_;
         std::string port_or_service_;
         std::chrono::milliseconds reconnect_interval_;
 
         boost::asio::ip::tcp::resolver resolver_;
         boost::asio::ip::tcp::socket socket_;
-        boost::asio::ip::tcp::resolver::iterator next_endpoint_;
+        boost::asio::ip::tcp::resolver::results_type results_;
+        boost::asio::ip::tcp::resolver::results_type::iterator next_endpoint_;
         boost::asio::steady_timer reconnect_timer_;
 
         ErrorHandler error_handler_;

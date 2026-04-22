@@ -12,6 +12,8 @@
 #include <numeric>
 #include <array>
 
+#include <boost/asio/bind_executor.hpp>
+#include <boost/asio/dispatch.hpp>
 #include <boost/asio/io_context.hpp>
 #include <boost/asio/steady_timer.hpp>
 #include <boost/asio/strand.hpp>
@@ -158,12 +160,11 @@ namespace flightaware::uat {
         void PurgeOld();
 
       private:
-        Tracker(boost::asio::io_context &service, std::chrono::milliseconds timeout) : service_(service), strand_(service), timer_(service), timeout_(timeout) {}
+        Tracker(boost::asio::io_context &service, std::chrono::milliseconds timeout) : strand_(service.get_executor()), timer_(service), timeout_(timeout) {}
 
         void HandleMessage(const AdsbMessage &message);
 
-        boost::asio::io_context &service_;
-        boost::asio::io_context::strand strand_;
+        boost::asio::strand<boost::asio::io_context::executor_type> strand_;
         boost::asio::steady_timer timer_;
         std::chrono::milliseconds timeout_;
         MapType aircraft_;

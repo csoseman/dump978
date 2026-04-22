@@ -218,8 +218,8 @@ void SkyAwareWriter::PeriodicWrite() {
     }
 
     auto self(shared_from_this());
-    timer_.expires_from_now(interval_);
-    timer_.async_wait(strand_.wrap([this, self](const boost::system::error_code &ec) {
+    timer_.expires_after(interval_);
+    timer_.async_wait(boost::asio::bind_executor(strand_, [this, self](const boost::system::error_code &ec) {
         if (!ec) {
             PeriodicWrite();
         }

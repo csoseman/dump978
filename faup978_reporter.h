@@ -39,7 +39,7 @@ namespace flightaware::faup978 {
         void HandleMessages(flightaware::uat::SharedMessageVector messages);
 
       private:
-        Reporter(boost::asio::io_context &service, std::chrono::milliseconds interval, std::chrono::milliseconds timeout) : service_(service), strand_(service), report_timer_(service), purge_timer_(service), interval_(interval), timeout_(timeout) { tracker_ = flightaware::uat::Tracker::Create(service, timeout); }
+        Reporter(boost::asio::io_context &service, std::chrono::milliseconds interval, std::chrono::milliseconds timeout) : service_(service), strand_(service.get_executor()), report_timer_(service), purge_timer_(service), interval_(interval), timeout_(timeout) { tracker_ = flightaware::uat::Tracker::Create(service, timeout); }
 
         void PeriodicReport();
         void PurgeOld();
@@ -48,7 +48,7 @@ namespace flightaware::faup978 {
         const char *TSVVersion() const { return fecfix_ ? TSV_VERSION_8U_FIX : TSV_VERSION_8U; }
 
         boost::asio::io_context &service_;
-        boost::asio::io_context::strand strand_;
+        boost::asio::strand<boost::asio::io_context::executor_type> strand_;
         boost::asio::steady_timer report_timer_;
         boost::asio::steady_timer purge_timer_;
         std::chrono::milliseconds interval_;

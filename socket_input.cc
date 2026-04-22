@@ -9,16 +9,16 @@ using boost::asio::ip::tcp;
 
 #include <iostream>
 
-RawInput::RawInput(boost::asio::io_context &service, const std::string &host, const std::string &port_or_service, std::chrono::milliseconds reconnect_interval) : service_(service), host_(host), port_or_service_(port_or_service), reconnect_interval_(reconnect_interval), resolver_(service), socket_(service), reconnect_timer_(service), used_(0) { readbuf_.resize(8192); }
+RawInput::RawInput(boost::asio::io_context &service, const std::string &host, const std::string &port_or_service, std::chrono::milliseconds reconnect_interval) : host_(host), port_or_service_(port_or_service), reconnect_interval_(reconnect_interval), resolver_(service), socket_(service), reconnect_timer_(service), used_(0) { readbuf_.resize(8192); }
 
 void RawInput::Start() {
     auto self(shared_from_this());
 
     std::cerr << "Connecting to " << host_ << ":" << port_or_service_ << std::endl;
-    tcp::resolver::query query(host_, port_or_service_);
-    resolver_.async_resolve(query, [this, self](const boost::system::error_code &ec, tcp::resolver::iterator it) {
+    resolver_.async_resolve(host_, port_or_service_, [this, self](const boost::system::error_code &ec, tcp::resolver::results_type results) {
         if (!ec) {
-            next_endpoint_ = it;
+            results_ = results;
+            next_endpoint_ = results_.begin();
             TryNextEndpoint(boost::asio::error::make_error_code(boost::asio::error::host_not_found));
         } else if (ec == boost::asio::error::operation_aborted) {
             return;
@@ -35,13 +35,14 @@ void RawInput::Stop() {
 }
 
 void RawInput::TryNextEndpoint(const boost::system::error_code &last_error) {
-    if (next_endpoint_ == tcp::resolver::iterator()) {
+    if (next_endpoint_ == results_.end()) {
         // No more addresses to try
         HandleError(last_error);
         return;
     }
 
-    tcp::endpoint endpoint = *next_endpoint_++;
+    tcp::endpoint endpoint = next_endpoint_->endpoint();
+    ++next_endpoint_;
     auto self(shared_from_this());
     socket_.async_connect(endpoint, [this, self, endpoint](const boost::system::error_code &ec) {
         if (!ec) {
@@ -92,7 +93,7 @@ void RawInput::HandleError(const boost::system::error_code &ec) {
 
         auto self(shared_from_this());
 
-        reconnect_timer_.expires_from_now(reconnect_interval_);
+        reconnect_timer_.expires_after(reconnect_interval_);
         reconnect_timer_.async_wait([this, self](const boost::system::error_code &ec) {
             if (!ec)
                 Start();

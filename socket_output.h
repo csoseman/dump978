@@ -21,6 +21,7 @@ namespace flightaware::uat {
     class SocketOutput : public std::enable_shared_from_this<SocketOutput> {
       public:
         typedef std::shared_ptr<SocketOutput> Pointer;
+        virtual ~SocketOutput() = default;
 
         virtual void Start();
         void Write(SharedMessageVector messages);
@@ -41,8 +42,7 @@ namespace flightaware::uat {
         void Flush();
         void ReadAndDiscard();
 
-        boost::asio::io_context &service_;
-        boost::asio::io_context::strand strand_;
+        boost::asio::strand<boost::asio::io_context::executor_type> strand_;
         boost::asio::ip::tcp::socket socket_;
         boost::asio::ip::tcp::endpoint peer_;
 
@@ -54,6 +54,7 @@ namespace flightaware::uat {
 
     class RawOutput : public SocketOutput {
       public:
+        virtual ~RawOutput() = default;
         // factory method, this class must always be constructed via make_shared
         static Pointer Create(boost::asio::io_context &service, boost::asio::ip::tcp::socket &&socket, SharedMessageVector header) { return Pointer(new RawOutput(service, std::move(socket), header)); }
 
@@ -70,6 +71,7 @@ namespace flightaware::uat {
 
     class JsonOutput : public SocketOutput {
       public:
+        virtual ~JsonOutput() = default;
         // factory method, this class must always be constructed via make_shared
         static Pointer Create(boost::asio::io_context &service, boost::asio::ip::tcp::socket &&socket) { return Pointer(new JsonOutput(service, std::move(socket))); }
 
