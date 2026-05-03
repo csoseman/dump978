@@ -46,6 +46,7 @@ $ sudo dpkg -i ../dump978-fa_*.deb ../skyaware978_*.deb
 2. `git clone git@github.com:csoseman/dump978.git`
 3. `cd dump978`
 4. `make CXXFLAGS="-std=c++17"`
+5. `brew install soapyrtlsdr` (and `librtlsdr` if it's not already installed)
 
 ## Installing the SoapySDR driver module
 

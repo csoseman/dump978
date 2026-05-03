@@ -165,7 +165,6 @@ void SoapySampleSource::Init() {
     // hacky mchackerson
     device_->setSampleRate(SOAPY_SDR_RX, 0, 2083333.0);
     device_->setFrequency(SOAPY_SDR_RX, 0, 978000000);
-    device_->setBandwidth(SOAPY_SDR_RX, 0, 3.0e6);
 
     if (options_.count("sdr-auto-gain")) {
         if (!device_->hasGainMode(SOAPY_SDR_RX, 0)) {
